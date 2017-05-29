@@ -49,11 +49,11 @@ $('.idea-container').on('click', '.delete', function() {
 //*********************************************************************
 
 //constructor function for creating new objects to save in localStorage
-function IdeaConstructor(title, body, id){
-  this.id = Date.now();
+function IdeaConstructor(title, body, quality){
   this.title = title;
   this.body = body;
-  this.quality = "swill";
+  this.id = Date.now();
+  this.quality = quality;
 }
 
 //build a Card
@@ -62,7 +62,7 @@ function buildNewCard (title, body){
   var ideaBody = $('.body-input').val() || body;
   // var ideaID = Date.now();
   var quality = "swill";
-  var newIdea = new IdeaConstructor(ideaTitle, ideaBody);
+  var newIdea = new IdeaConstructor(ideaTitle, ideaBody, quality);
   $('.idea-container').prepend(`
       <article class="idea-card" id="${newIdea.id}">
         <div class="card-top">
@@ -83,10 +83,8 @@ function buildNewCard (title, body){
   };
 
 //add object to localStorage function
-function addToLocal(idea){
-  var stringifiedIdea = JSON.stringify(ideaArray);
-  // console.log(stringifiedIdea)
-  localStorage.setItem('ideaArray', stringifiedIdea);
+function addToLocal(){
+  localStorage.setItem('ideaArray', JSON.stringify(ideaArray));
 };
 
 // get object back from JSON function
@@ -96,7 +94,7 @@ function addToLocal(idea){
       var retrieve = JSON.parse(localStorage.getItem('ideaArray'));
           console.log("loading ideas ", retrieve)
       retrieve.forEach(function(element){
-      var ideaNode = buildNewCard(element.title, element.body, element.id);
+      var ideaNode = buildNewCard(element.title, element.body);
       ideaList.prepend(ideaNode);
       })
   } else {console.log('nothing here bitch')}
@@ -105,34 +103,46 @@ function addToLocal(idea){
 //upvote button function :: not functional
 function upvote() {
   var qualityInput = $(this).closest('.idea-card').find('#vote');
-  console.log(qualityInput);
+  console.log(qualityInput.text());
   if (qualityInput.text() === 'swill') {
     qualityInput.text('plausible');
   } else if (qualityInput.text() === 'plausible'){
     qualityInput.text('genius')
   }
 
-
-
-
-  var id = $('.up-vote').parents('.idea-card')[0].id;
-  console.log(id);
-  var parsedQuality = JSON.parse(localStorage.getItem('ideaArray'));
-  parsedQuality.forEach(function(element) {
-    if (id == element.id) {
-      console.log(element.id);
-  element.quality = qualityInput;
+  var id = $(event.target).closest('.idea-card')[0].id;
+  var qualText = $(event.target).closest('.idea-card').find('#vote');
+  console.log(qualText.text());
+  for (var i = 0; i < ideaArray.length; i++) {
+    if (ideaArray[i].id == id) {
+      ideaArray[i].quality = qualText.text();
+    }
   }
-  parsedQuality = element.quality;
-  console.log(parsedQuality);
-  })
+addToLocal();
+
+//   var index;
+// // getting id from specific card
+//   var id = $(event.target).parents('.idea-card')[0].id;
+//   console.log(id);
+//   //storing parsed array in variable
+//   var parsedQuality = JSON.parse(localStorage.getItem('ideaArray'));
+//   console.log(parsedQuality);
+//   //looping through parsed array to find card with the id of card we clicked on
+//   parsedQuality.forEach(function(element) {
+//     if (id == element.id) {
+//       console.log(element.id);
+//   //setting the new quality in element.quality from var qualityInput
+//   element.quality = qualityInput.text();
+//   }
+//   console.log(qualityInput.text());
+//   })
+// //insert new quality into the array
+//   ideaArray.splice(index, 1, parsedQuality);
+//   console.log('after splice: ' + ideaArray);
+// //store in localStorage
+// var stringifiedIdea = JSON.stringify(ideaArray);
+// localStorage.setItem('ideaArray', stringifiedIdea);
 }
-console.log(parsedQuality);
-// ideaArray.push(parsedQuality);
-
-  // localStorage.setItem('ideaArray', JSON.stringify(ideaArray));
-
-  // storeQuality();
 
 
 function storeQuality () {
